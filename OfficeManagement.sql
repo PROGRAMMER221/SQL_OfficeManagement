@@ -15,15 +15,37 @@ create table [Office].[Department]
 )ON [Primary];
 go
 
-create procedure [Office].[Department_Ins]
+alter procedure [Office].[Department_Ins]
 (
 	@DepId int,
 	@DepName varchar(30)
 )
 as
 begin
+	set nocount on
+	begin transaction
+	begin try
 	insert into [Office].[Department] (DepId,DepName)
 		values (@DepId,@DepName)
+	end try
+	begin catch
+		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
+		SELECT @ErrorMessage = ERROR_MESSAGE(),@ErrorSeverity = ERROR_SEVERITY(),@ErrorState = ERROR_STATE();  
+  
+		if @@TRANCOUNT > 0
+		begin
+			--print 'error catch'
+			ROLLBACK TRANSACTION
+		end
+		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);  
+		RETURN;
+	end catch
+	if @@TRANCOUNT > 0
+	begin
+		--print 'commit'
+		COMMIT TRANSACTION
+	end
+	RETURN;
 end
 
 go
@@ -37,17 +59,40 @@ create table [Office].[SalaryGrade]
 
 go
 
-create procedure [Office].[SalaryGrade_Ins]
+alter procedure [Office].[SalaryGrade_Ins]
 (
 	@Grade int,
 	@MinSalary int,
 	@MaxSalary int
 )
 as
-Begin
+begin
+	set nocount on
+	begin transaction
+	begin try
 	insert into [Office].[SalaryGrade] (Grade,MinSalary,MaxSalary)
 		values (@Grade,@MinSalary,@MaxSalary)
-End
+	end try
+	begin catch
+		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
+		SELECT @ErrorMessage = ERROR_MESSAGE(),@ErrorSeverity = ERROR_SEVERITY(),@ErrorState = ERROR_STATE();  
+  
+		if @@TRANCOUNT > 0
+		begin
+			--print 'error catch'
+			ROLLBACK TRANSACTION
+		end
+		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);  
+		RETURN;
+	end catch
+	if @@TRANCOUNT > 0
+	begin
+		--print 'commit'
+		COMMIT TRANSACTION
+	end
+	RETURN;
+end
+
 go
 
 create table [office].[WorkShift]
@@ -58,7 +103,7 @@ create table [office].[WorkShift]
 )ON [Primary];
 go
 
-Create procedure [Office].[WorkShift_Ins]
+alter procedure [Office].[WorkShift_Ins]
 (
 	@ShiftName varchar(2),
 	@TimeStart time,
@@ -66,9 +111,32 @@ Create procedure [Office].[WorkShift_Ins]
 )
 as
 begin
+	set nocount on
+	begin transaction
+	begin try
 	insert into [Office].[WorkShift] (ShiftName,TimeStart,TimeEnd)
-		Values (@ShiftName,@TimeStart,@TimeEnd)
+		values (@ShiftName,@TimeStart,@TimeEnd)
+	end try
+	begin catch
+		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
+		SELECT @ErrorMessage = ERROR_MESSAGE(),@ErrorSeverity = ERROR_SEVERITY(),@ErrorState = ERROR_STATE();  
+  
+		if @@TRANCOUNT > 0
+		begin
+			--print 'error catch'
+			ROLLBACK TRANSACTION
+		end
+		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);  
+		RETURN;
+	end catch
+	if @@TRANCOUNT > 0
+	begin
+		--print 'commit'
+		COMMIT TRANSACTION
+	end
+	RETURN;
 end
+
 go
 
 create table [Office].[Employees]
@@ -89,7 +157,7 @@ create table [Office].[Employees]
 )ON [Primary];
 go
 
-Create procedure [Office].[Employees_Ins]
+alter procedure [Office].[Employees_Ins]
 (
 	@EmpId int,
 	@EmpName varchar(50),
@@ -107,8 +175,30 @@ Create procedure [Office].[Employees_Ins]
 )
 as
 begin
+	set nocount on
+	begin transaction
+	begin try
 	insert into [Office].[Employees] (EmpId,EmpName,EmpFatherName,Designation,ManagerId,JoiningDate,DepId,ShiftName,Arival,Departure,Grade,Salary,Comission)
-		values (@EmpId,@EmpId,@EmpFatherName,@Designation,@ManagerId,@JoiningDate,@DepId,@ShiftName,@Arival,@Departure,@Grade,@Salary,@Comission)
+		values (@EmpId,@EmpName,@EmpFatherName,@Designation,@ManagerId,@JoiningDate,@DepId,@ShiftName,@Arival,@Departure,@Grade,@Salary,@Comission)
+	end try
+	begin catch
+		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
+		SELECT @ErrorMessage = ERROR_MESSAGE(),@ErrorSeverity = ERROR_SEVERITY(),@ErrorState = ERROR_STATE();  
+  
+		if @@TRANCOUNT > 0
+		begin
+			--print 'error catch'
+			ROLLBACK TRANSACTION
+		end
+		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);  
+		RETURN;
+	end catch
+	if @@TRANCOUNT > 0
+	begin
+		--print 'commit'
+		COMMIT TRANSACTION
+	end
+	RETURN;
 end
 go
 
@@ -124,7 +214,11 @@ create table [office].[Attendance]
 )ON [Primary];
 go
 
-create procedure [office].[Attendance_Ins]
+alter table [office].[Attendance] add DayType varchar(3) not null
+
+go
+
+alter procedure [office].[Attendance_Ins]
 (
 	@EmpId int,
 	@WDate date,
@@ -135,8 +229,30 @@ create procedure [office].[Attendance_Ins]
 )
 as
 begin
+	set nocount on
+	begin transaction
+	begin try
 	insert into [Office].[Attendance] (EmpId,WDate,ArivalDateTime,DepartureDateTime,WorkingHRS,OTHRS)
 		values (@EmpId,@WDate,@ArivalDateTime,@DepartureDateTime,@WorkingHRS,@OTHRS)
+	end try
+	begin catch
+		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
+		SELECT @ErrorMessage = ERROR_MESSAGE(),@ErrorSeverity = ERROR_SEVERITY(),@ErrorState = ERROR_STATE();  
+  
+		if @@TRANCOUNT > 0
+		begin
+			--print 'error catch'
+			ROLLBACK TRANSACTION
+		end
+		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);  
+		RETURN;
+	end catch
+	if @@TRANCOUNT > 0
+	begin
+		--print 'commit'
+		COMMIT TRANSACTION
+	end
+	RETURN;
 end
 go
 
@@ -154,7 +270,7 @@ create table [Office].[Salary]
 )ON [Primary];
 go
 
-create procedure [Office].[Salary_Ins]
+alter procedure [Office].[Salary_Ins]
 (
 	@EmpId int,
 	@SalMonth varchar(10),
@@ -167,7 +283,55 @@ create procedure [Office].[Salary_Ins]
 )
 as
 begin
+	set nocount on
+	begin transaction
+	begin try
 	insert into [Office].[Salary] (EmpId,SalMonth,SalYear,Salary,WDay,Holiday,WeeklyOff,GrossSalary)
 		values (@EmpId,@SalMonth,@SalYear,@Salary,@WDay,@Holiday,@WeeklyOff,@GrossSalary)
+	end try
+	begin catch
+		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
+		SELECT @ErrorMessage = ERROR_MESSAGE(),@ErrorSeverity = ERROR_SEVERITY(),@ErrorState = ERROR_STATE();  
+  
+		if @@TRANCOUNT > 0
+		begin
+			--print 'error catch'
+			ROLLBACK TRANSACTION
+		end
+		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);  
+		RETURN;
+	end catch
+	if @@TRANCOUNT > 0
+	begin
+		--print 'commit'
+		COMMIT TRANSACTION
+	end
+	RETURN;
 end
 go
+
+create trigger [office].[trr_SalaryCheck] on [Office].[Employees]
+after insert
+as
+begin
+	declare	@grade int,
+		@salary int
+
+	declare cur_Salary cursor local forward_only read_only for select Grade,Salary from inserted
+	open cur_Salary
+	fetch next from cur_Salary into @grade,@salary
+	while @@Fetch_Status = 0
+	begin
+		if not exists ( select * from [Office].[SalaryGrade] where Grade = @grade and @salary between MinSalary and MaxSalary)
+		begin
+			raiserror('Invalid Salary ',16,1)
+			rollback transaction
+		end
+		fetch next from cur_Salary into @grade,@salary
+	end
+end
+close cur_Salary
+deallocate cur_Salary
+go
+
+select * from [Office].[Attendance]
