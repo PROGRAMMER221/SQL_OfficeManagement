@@ -210,7 +210,7 @@ create table [office].[Attendance]
 	DepartureDateTime DateTime not null,
 	WorkingHRS decimal(5,2) not null,
 	OTHRS decimal(5,2) not null,
-	DayType varchar(1) not null constraint ck_Office_Attendance_DayType check (DayType like 'WHNO')
+	DayType varchar(1) not null constraint ck_Office_Attendance_DayType Check (daytype in ('W','H','A','O'))
 	constraint pk_office_EmpId_WDate primary key (EmpId,WDate)
 )ON [Primary];
 go
