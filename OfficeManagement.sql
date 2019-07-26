@@ -209,12 +209,12 @@ create table [office].[Attendance]
 	ArivalDateTime DateTime not null,
 	DepartureDateTime DateTime not null,
 	WorkingHRS decimal(5,2) not null,
-	OTHRS decimal(5,2) not null
+	OTHRS decimal(5,2) not null,
+	DayType varchar(1) not null constraint ck_Office_Attendance_DayType check (DayType like 'WHNO')
 	constraint pk_office_EmpId_WDate primary key (EmpId,WDate)
 )ON [Primary];
 go
 
-alter table [office].[Attendance] add DayType varchar(3) not null
 
 go
 
