@@ -15,7 +15,7 @@ create table [Office].[Department]
 )ON [Primary];
 go
 
-alter procedure [Office].[Department_Ins]
+create procedure [Office].[Department_Ins]
 (
 	@DepId int,
 	@DepName varchar(30)
