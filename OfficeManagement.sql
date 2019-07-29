@@ -15,7 +15,7 @@ create table [Office].[Department]
 )ON [Primary];
 go
 
-create procedure [Office].[Department_Ins]
+alter procedure [Office].[Department_Ins]
 (
 	@DepId int,
 	@DepName varchar(30)
@@ -223,17 +223,51 @@ alter procedure [office].[Attendance_Ins]
 	@EmpId int,
 	@WDate date,
 	@ArivalDateTime DateTime,
-	@DepartureDateTime DateTime,
-	@WorkingHRS decimal(5,2),
-	@OTHRS decimal(5,2)
+	@DepartureDateTime DateTime
 )
 as
 begin
+	declare @DTY varchar(1),
+	@WorkingHRS decimal(5,2),
+	@OTHRS decimal(5,2),
+	@nwhrs int = 9
 	set nocount on
 	begin transaction
 	begin try
-	insert into [Office].[Attendance] (EmpId,WDate,ArivalDateTime,DepartureDateTime,WorkingHRS,OTHRS)
-		values (@EmpId,@WDate,@ArivalDateTime,@DepartureDateTime,@WorkingHRS,@OTHRS)
+	if EXISTS (select 'X' from [Office].[WeeklyOff] WHERE wodays =  DATENAME(weekday,@Wdate))
+	begin
+		set @DTY ='O'
+	end
+	if EXISTS (select 'X' from [Office].[Holiday] WHERE Hdate =  @Wdate)
+	begin
+		set @DTY ='H'
+	end
+
+	if NOT EXISTS (select 'X' from [Office].[Holiday] WHERE Hdate =  @Wdate) AND NOT EXISTS (select 'X' from [Office].[WeeklyOff] WHERE wodays =  DATENAME(weekday,@Wdate))
+	begin
+		set @DTY ='W'
+	end
+
+	set @WorkingHRS = DATEDIFF(mi,@ArivalDateTime,@DepartureDateTime)/60
+
+	if (@WorkingHRS > @nwhrs)
+	begin
+		set @OTHRS = @WorkingHRS - @nwhrs
+		set @WorkingHRS = @nwhrs
+	end
+	else
+	begin
+		set @OTHRS = 0
+	end
+
+	if (@DTY = 'H' or @DTY = 'O')
+	begin
+		set @OTHRS = @WorkingHRS
+		set @WorkingHRS = 0
+	end
+
+	insert into [Office].[Attendance] (EmpId,WDate,ArivalDateTime,DepartureDateTime,WorkingHRS,OTHRS,Daytype)
+		values (@EmpId,@WDate,@ArivalDateTime,@DepartureDateTime,@WorkingHRS,@OTHRS,@DTY)
 	end try
 	begin catch
 		DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;    
@@ -310,6 +344,20 @@ begin
 end
 go
 
+CREATE TABLE [OFFICE].[WeeklyOff]
+(
+	wodays varchar(10) not null primary key
+)ON [Primary];
+
+go
+
+create table [Office].[Holiday]
+(
+	Hdate date not null primary key,
+	HolidayReason Varchar(40) not null
+) ON [Primary];
+go
+
 create trigger [office].[trr_SalaryCheck] on [Office].[Employees]
 after insert
 as
@@ -335,3 +383,5 @@ deallocate cur_Salary
 go
 
 select * from [Office].[Attendance]
+
+
