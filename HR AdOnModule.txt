@@ -1,0 +1,14 @@
+advance
+loan
+loandeduction
+loanprepayment
+arrear
+tds
+Leave Register
+Leave Adjust
+salaryPaidDetails
+Attendance Chart
+Bonus
+Bonus Paid Details
+Incentive
+
